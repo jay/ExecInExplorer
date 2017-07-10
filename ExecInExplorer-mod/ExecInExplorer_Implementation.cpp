@@ -4,10 +4,20 @@
 // PARTICULAR PURPOSE.
 //
 // Copyright (c) Microsoft Corporation. All rights reserved
+// Copyright (C) 2017 Jay Satiro <raysatiro@yahoo.com>
+//
+// ShellExecInExplorerProcess() has been modified to take optional args and dir.
+//
+// Unmodified project at:
+// https://github.com/Microsoft/Windows-classic-samples/tree/master/Samples/Win7Samples/winui/shell/appplatform/ExecInExplorer
+//
+// MIT License:
+// https://github.com/jay/ExecInExplorer/blob/master/LICENSE
 
 #include <windows.h>
 #include <shlwapi.h>
 #include <shlobj.h>
+#include <malloc.h>
 
 #pragma comment(lib, "shlwapi.lib")
 
@@ -83,7 +93,7 @@ HRESULT GetShellDispatchFromView(IShellView *psv, REFIID riid, void **ppv)
     return hr;
 }
 
-HRESULT ShellExecInExplorerProcess(PCWSTR pszFile)
+HRESULT ShellExecInExplorerProcess(PCWSTR pszFile, PCWSTR pszArgs, PCWSTR pszDir)
 {
     IShellView *psv;
     HRESULT hr = GetShellViewForDesktop(IID_PPV_ARGS(&psv));
@@ -97,8 +107,49 @@ HRESULT ShellExecInExplorerProcess(PCWSTR pszFile)
             hr = bstrFile ? S_OK : E_OUTOFMEMORY;
             if (SUCCEEDED(hr))
             {
-                VARIANT vtEmpty = {}; // VT_EMPTY
-                hr = psd->ShellExecuteW(bstrFile, vtEmpty, vtEmpty, vtEmpty, vtEmpty);
+                VARIANT vtArgs = {};
+                if (pszArgs && *pszArgs)
+                {
+                    vtArgs.vt = VT_BSTR;
+                    vtArgs.bstrVal = SysAllocString(pszArgs);
+                    hr = vtArgs.bstrVal ? S_OK : E_OUTOFMEMORY;
+                }
+                if (SUCCEEDED(hr))
+                {
+                    VARIANT vtDir = {};
+                    if (pszDir && *pszDir)
+                    {
+                        vtDir.vt = VT_BSTR;
+                        vtDir.bstrVal = SysAllocString(pszDir);
+                        hr = vtDir.bstrVal ? S_OK : E_OUTOFMEMORY;
+                    }
+                    if (SUCCEEDED(hr))
+                    {
+                        /* Note using an app path directly here like L"notepad++.exe" may appear to
+                           work but it's misleading. That first param requires a BSTR not wchar_t *.
+                           The underlying type is the same but the data is stored differently.
+                           Due to a quirk in the way explorer receives the arguments it may appear
+                           to work arbitrarily (or execute something different entirely).
+                           Wrong:
+                           hr = psd->ShellExecuteW(L"notepad++.exe", vtArgs, vtDir, vtEmpty, vtEmpty);
+
+                           To see all the app paths refer to:
+                           HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
+                           AppPaths are used by ShellExecute if the command isn't found in the path.
+
+                           Note also for first param that bstrFile it can be a full path to the exe.
+
+                           Note the third parameter can be the directory of bstrFile if it's just a
+                           filename. However it can also be the working directory. If the directory
+                           is not found or inaccessible then it will crop it to the root.
+                           eg curdir of C:\Windows\doesnotexist explorer changes it to curdir C:\
+                           */
+                        VARIANT vtEmpty = {}; // VT_EMPTY
+                        hr = psd->ShellExecuteW(bstrFile, vtArgs, vtDir, vtEmpty, vtEmpty);
+                        VariantClear(&vtDir);
+                    }
+                    VariantClear(&vtArgs);
+                }
                 SysFreeString(bstrFile);
             }
             psd->Release();

@@ -21,9 +21,15 @@
     <ClCompile Include="ExecInExplorer_Implementation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ExecInExplorer_Util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExecInExplorer_Implementation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExecInExplorer_Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

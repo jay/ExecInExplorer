@@ -2,4 +2,4 @@
 
 #include <Windows.h>
 
-HRESULT ShellExecInExplorerProcess(PCWSTR pszFile);
+HRESULT ShellExecInExplorerProcess(PCWSTR pszFile, PCWSTR pszArgs = L"", PCWSTR pszDir = L"");

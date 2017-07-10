@@ -81,9 +81,11 @@
   <ItemGroup>
     <ClCompile Include="ExecInExplorer.cpp" />
     <ClCompile Include="ExecInExplorer_Implementation.cpp" />
+    <ClCompile Include="ExecInExplorer_Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExecInExplorer_Implementation.h" />
+    <ClInclude Include="ExecInExplorer_Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
