@@ -10,7 +10,7 @@ use the current directory.
 
 ### Usage
 
-Usage: ExecInExplorer [--use-current-directory[=dir]] <prog> [[arg]...]
+Usage: `ExecInExplorer [--use-current-directory[=dir]] <prog> [[arg]...]`  
 Execute a command asynchronously in the context of explorer.
 
 ExecInExplorer is useful if you are running as administrator and you want to
@@ -23,9 +23,11 @@ raw data in order to preserve it for explorer, this option is parsed raw
 (escapes are not acknowledged), must not contain quotes but can be quoted and
 if quoted ends immediately at the next quote no matter what. For example:
 
+~~~
 Yes:  ExecInExplorer "--use-current-directory=C:\foo bar\baz" notepad foo
 No:   ExecInExplorer --use-current-directory="C:\foo bar\baz" notepad foo
 No:   ExecInExplorer "--use-current-directory=\"C:\foo bar\baz\"" notepad foo
+~~~
 
 If the specified directory is invalid or inaccessible the behavior is
 undocumented. Empirical testing shows if the directory does not exist then
@@ -49,6 +51,13 @@ Raymond Chen's
 ExecInExplorer works by calling function
 [IShellDispatch2.ShellExecute](https://msdn.microsoft.com/en-us/library/windows/desktop/bb774148.aspx).
 
+[Microsoft's RunAsDesktopUser sample](https://blogs.msdn.microsoft.com/aaron_margosis/2009/06/06/faq-how-do-i-start-a-program-as-the-desktop-user-from-an-elevated-app/),
+which is similar to ExecInExplorer. In
+[my RunAsDesktopUser fork](https://github.com/jay/RunAsDesktopUser)
+I made changes similar to what I made in ExecInExplorer, and also a change
+allowing for synchronous execution of the command line (via
+--wait-for-exit-code).
+
 ### Incorrect exit code when run from Windows Command Prompt?
 
 ExecInExplorer uses the Windows subsystem not the console subsystem, which
@@ -58,15 +67,6 @@ with the exit code. However if you execute it from a batch file the interpreter
 will run it synchronously and once it terminates its exit code will be put in
 %ERRORLEVEL%. None of this has any bearing on how ExecInExplorer executes the
 command line passed to it, which is always asynchronous.
-
-### Synchronous execution of command line passed to ExecInExplorer?
-
-If you want to block waiting for the command line to finish there doesn't
-appear to be any way to do it with this method. You can do it by copying the
-user's shell token and passing that to CreateProcessWithTokenW (Vista+) and
-then WaitForSingleObject on the process handle. For more information read Aaron
-Margosis'
-[blog post](https://blogs.msdn.microsoft.com/aaron_margosis/2009/06/06/faq-how-do-i-start-a-program-as-the-desktop-user-from-an-elevated-app/).
 
 ### License
 
