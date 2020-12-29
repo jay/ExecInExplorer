@@ -76,6 +76,16 @@ will run it synchronously and once it terminates its exit code will be put in
 %ERRORLEVEL%. None of this has any bearing on how ExecInExplorer executes the
 command line passed to it, which is always asynchronous.
 
+### Known issues
+
+- Return code HRESULT 0x80004005 (E_FAIL)
+
+E_FAIL could happen for many reasons and requires debugging to find the cause.
+I have observed it when there are multiple explorer processes running on the
+same desktop; a lingering older process that should have terminated and its
+replacement. In that case IShellWindows::FindWindowSW fails to find the
+desktop. https://stackoverflow.com/q/65489200
+
 ### License
 
 [MIT license](https://github.com/jay/ExecInExplorer/blob/master/LICENSE)
