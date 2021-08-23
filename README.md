@@ -86,6 +86,14 @@ same desktop; a lingering older process that should have terminated and its
 replacement. In that case IShellWindows::FindWindowSW fails to find the
 desktop. https://stackoverflow.com/q/65489200
 
+- Return code HRESULT 0x8007000E (E_OUTOFMEMORY)
+
+E_OUTOFMEMORY also could happen for many reasons, the least of which is out of
+memory. It is used as a generic error in some of the ExecAsExplorer code and
+Microsoft API functions may also return it. For example, I've observed security
+software stopping the enumeration of shell windows (CLSID_ShellWindows) and the
+MS API function returns out of memory.
+
 ### License
 
 [MIT license](https://github.com/jay/ExecInExplorer/blob/master/LICENSE)
